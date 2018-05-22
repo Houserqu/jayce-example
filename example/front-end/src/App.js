@@ -23,9 +23,16 @@ class App extends Component {
     this.setState({Socket: ws});
   }
 
-  sendWs = () => {
+  sendLogin = () => {
     console.log(this.state.Socket)
-    this.state.Socket.send('hello world');
+    var send = {type: '/login', data: 'login'}
+    this.state.Socket.send(JSON.stringify(send));
+  }
+
+  sendSign = () => {
+    console.log(this.state.Socket)
+    var send = {type: '/sign', data: 'sign'}
+    this.state.Socket.send(JSON.stringify(send));
   }
 
   closeWs = () => {
@@ -45,7 +52,8 @@ class App extends Component {
 
         <div>
           <button onClick={this.createWs}>建立连接</button>
-          <button onClick={this.sendWs}>发送消息</button>
+          <button onClick={this.sendLogin}>发送login消息</button>
+          <button onClick={this.sendSign}>发送sign消息</button>
           <button onClick={this.closeWs}>断开连接</button>
         </div>
       </div>

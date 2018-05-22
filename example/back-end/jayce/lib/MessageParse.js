@@ -3,13 +3,12 @@
 class MessageParse {
 
   parse (message) {
-    
-    return {type: 'GET', data: 'action'};
+    return JSON.parse(message);
   }
 
-  dispatch (req, res, actionFn) {
+  dispatch (req, actionFn) {
     // 执行 action 方法
-    actionFn(req, res);
+    actionFn(req);
   }
 }
 

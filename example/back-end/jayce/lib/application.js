@@ -1,13 +1,25 @@
 var WebSocket = require('ws').Server;
 var MessageParse = require('./MessageParse');
-var Response = require('./Response');
 var Base = require('./base');
 
 function Jayce (){
 
   var messageParse = new MessageParse;
+
+  /**
+   * 添加一个action集合
+   * @param {string} first 一级action
+   * @param {Object} actionsRouter actions 对象
+   */
+  this.actionCollection = function(actionsRouter){
+    this.actions = [...actionsRouter.actions];
+  }
   
-  // 添加 action
+  /**
+   * 
+   * @param {string} name 事件名称
+   * @param {function} callback 事件回调
+   */
   this.action = function(type, callback) {
     // 验证actions合法性
     if(typeof type === 'string' && typeof callback === 'function'){
@@ -17,13 +29,14 @@ function Jayce (){
     }
   }
   
+  /**
+   * 创建 ws 服务器
+   * @param {Object} options 
+   */
   this.listen = function(options) {
     var ws = new WebSocket(options);
 
     var that = this;
-
-    console.log('that', that);
-    console.log(this.name);
   
     ws.on('connection', function(con){
       console.log('connection');
@@ -33,17 +46,14 @@ function Jayce (){
       con.on('message',function(msg){
     
         let req = messageParse.parse(msg); // 构建用户post消息
+        console.log(req);
         /**
          * msgAction = {type, date}
          */
-  
-        console.log(that.clients);
-  
+    
         that.actions.forEach((item, index) => {
           if(item.type === req.type){
-            console.log(item);
-            let res = new Response;
-            messageParse.dispatch(req, res, item.callback);
+            messageParse.dispatch(req, item.callback);
           }
         })
     
@@ -73,6 +83,8 @@ function Jayce (){
         })
       });
     })
+
+    console.log('server listen on: ', options.port)
   }
 }
 

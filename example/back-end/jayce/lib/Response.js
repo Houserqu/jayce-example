@@ -1,16 +1,24 @@
 var Base = require('./base');
 
-function Response() {
+function Response(){
+  // 判断是否存在实例
+  if (typeof Response.instance === 'object') {
+    return Response.instance;
+  }
 
-  this.send = function(msg) {
+  /**
+   * 广播
+   */
+  this.all = function(data){
     console.log('res send');
-    console.log(this.name);
     this.clients.forEach(item => {
-      item.send('asdasdasd');
+      item.send(JSON.stringify(data));
     });
   }
+
+  Response.instance = this;
 }
 
 Response.prototype = new Base();
 
-module.exports = Response;
+module.exports = new Response();
