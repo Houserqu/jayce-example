@@ -1,15 +1,43 @@
-//var getArticle = require('./action/getArticle');
+var Base = require('./base');
 
-class MessageParse {
+function MessageParse() {
 
-  parse (message) {
-    return JSON.parse(message);
+  if (typeof MessageParse.instance === 'object') {
+    return MessageParse.instance;
   }
 
-  dispatch (req, actionFn) {
-    // 执行 action 方法
-    actionFn(req);
+  let that = this;
+
+  this.createReq = function (msg) {
+    let message = JSON.parse(msg);
+    let req = {
+      type: message.type,
+      data: message.data,
+    }
+
+    return req;
   }
+
+  this.createRes = function (con) {
+    let res = {}
+
+    res.send = function (data) {
+      con.send(JSON.stringify(data));
+    }
+
+    res.all = function (data) {
+      that.clients.forEach(item => {
+        item.send(JSON.stringify(data));
+      });
+    }
+
+    return res;
+  }
+
+  MessageParse.instance = this;
+
 }
 
-module.exports = MessageParse;
+MessageParse.prototype = new Base();
+
+module.exports = new MessageParse();

@@ -15,10 +15,10 @@ const jayceApp = jayce();
 // 添加 事件监听
 jayceApp.actionCollection(articleAction);
 
-jayceApp.action('/login', function(req){
-  console.log(req.data);
-  Response.all(req.data);
-})
+// jayceApp.action('/login', function(req){
+//   console.log(req.data);
+//   Response.all(req.data);
+// })
 
 jayceApp.listen({
   server,

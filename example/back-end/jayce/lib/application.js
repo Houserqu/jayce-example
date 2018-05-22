@@ -1,10 +1,8 @@
 var WebSocket = require('ws').Server;
-var MessageParse = require('./MessageParse');
+var messageParse = require('./messageParse');
 var Base = require('./base');
 
 function Jayce (){
-
-  var messageParse = new MessageParse;
 
   /**
    * 添加一个action集合
@@ -44,16 +42,17 @@ function Jayce (){
       that.clients.push(con);
     
       con.on('message',function(msg){
-    
-        let req = messageParse.parse(msg); // 构建用户post消息
-        console.log(req);
+        let req = messageParse.createReq(msg); // 构建 请求 对象
+
+        let res = messageParse.createRes(con); //构建 响应 对象
         /**
          * msgAction = {type, date}
          */
     
         that.actions.forEach((item, index) => {
           if(item.type === req.type){
-            messageParse.dispatch(req, item.callback);
+            item.callback(req, res)
+            //messageParse.dispatch(req, item.callback, con);
           }
         })
     
