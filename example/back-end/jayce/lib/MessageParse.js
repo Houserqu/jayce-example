@@ -15,28 +15,25 @@ function MessageParse() {
    * 根据消息创建请求对象
    * @param {string} msg 
    */
-  this.createReq = function (msg) {
-    let message = JSON.parse(msg);
-    let req = {
-      type: message.type,
-      data: message.data,
-    }
+  this.createContext = function (msg, con) {
+    // 创建上下文对象
+    let ctx = {}
 
-    return req;
-  }
-
-  /**
-   * 创建response对象
-   * @param {ws connect} con 
-   */
-  this.createRes = function (con) {
-    let res = {}
+    ctx.message = msg;
 
     /**
      * 给当前链接发送消息
      * @param {object} data 
      */
-    res.send = function (data) {
+    ctx.send = function (data) {
+
+      // 实例化中间件执行器
+      let middleExecute = new MiddleExecute(data, 'response');
+      middleExecute.next();
+
+      // 返回处理后的上下文
+      ctx = middleExecute.ctx;
+
       con.send(JSON.stringify(data));
     }
 
@@ -44,13 +41,13 @@ function MessageParse() {
      * 广播
      * @param {object} data 
      */
-    res.all = function (data) {
+    ctx.all = function (data) {
       that.clients.forEach(item => {
         item.send(JSON.stringify(data));
       });
     }
 
-    return res;
+    return ctx;
   }
 
   MessageParse.instance = this;

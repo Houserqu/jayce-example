@@ -1,6 +1,8 @@
 var WebSocket = require('ws').Server;
 var messageParse = require('./messageParse');
 var Base = require('./base');
+var MiddleExecute = require('./middleExecute');
+var 
 
 function Jayce (){
 
@@ -26,6 +28,20 @@ function Jayce (){
       console.error('非法action')
     }
   }
+
+  
+  this.use = function(type, fn){
+    console.log(type, fn);
+    if (typeof fn === 'function' && typeof type == 'string') {
+      this.middleware.push({
+        type, fn
+      })
+    }
+  }
+
+  this.init = function() {
+    //this.middleware.push()
+  }
   
   /**
    * 创建 ws 服务器
@@ -42,21 +58,22 @@ function Jayce (){
       that.clients.push(con);
     
       con.on('message',function(msg){
-        let req = messageParse.createReq(msg); // 构建 请求 对象
+        let ctx = messageParse.createContext(msg, con); // 构建 事件上下文
 
-        let res = messageParse.createRes(con); //构建 响应 对象
-        /**
-         * msgAction = {type, date}
-         */
-    
+        // 实例化中间件执行器
+        let middleExecute = new MiddleExecute(ctx, 'request');
+        middleExecute.next();
+
+        // 返回处理后的上下文
+        ctx = middleExecute.ctx;
+
+        // 执行对应事件处理器
         that.actions.forEach((item, index) => {
-          if(item.type === req.type){
-            item.callback(req, res)
+          if (item.type === ctx.type) {
+            item.callback(ctx)
             //messageParse.dispatch(req, item.callback, con);
           }
         })
-    
-        //con.send('backend');
       });
     
       con.on('close',function(){
