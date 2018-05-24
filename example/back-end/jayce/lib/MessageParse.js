@@ -47,6 +47,10 @@ function MessageParse() {
       });
     }
 
+    ctx.me = function (data) {
+      ctx.send
+    }
+
     return ctx;
   }
 
