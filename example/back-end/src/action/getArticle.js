@@ -7,7 +7,8 @@ Action.action('/sign', function (ctx) {
 })
 
 Action.action('/login', function (ctx) {
-  ctx.send(ctx.data);
+  console.log('cur action login');
+  ctx.me('response');
 })
 
 module.exports = Action;

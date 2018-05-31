@@ -60,19 +60,28 @@ function Jayce (){
         let ctx = messageParse.createContext(msg, con); // 构建 事件上下文
 
         // 实例化中间件执行器
-        let middleExecute = new MiddleExecute(ctx, 'request');
-        middleExecute.next();
+        MiddleExecute(ctx, 'request');
+
+        console.log(ctx);
 
         // 返回处理后的上下文
-        ctx = middleExecute.ctx;
+        //ctx = middleExecute.ctx;
+
+        // 是否匹配到处理事件
+        let isMatchAction = false;
 
         // 执行对应事件处理器
         that.actions.forEach((item, index) => {
-          if (item.type === ctx.type) {
+          if (item.type === ctx.req.header.url) {
+            isMatchAction = true;
             item.callback(ctx)
             //messageParse.dispatch(req, item.callback, con);
           }
         })
+
+        if(!isMatchAction){
+          con.send('no match');
+        }
       });
     
       con.on('close',function(){
@@ -84,7 +93,6 @@ function Jayce (){
             delete clients[index];
           }
         })
-  
       });
     
       con.on('error',function(){

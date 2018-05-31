@@ -6,8 +6,6 @@ function MiddleExecute (ctx, type) {
   this.index = 0;
   this.ctx = ctx;
 
-  console.log(base.middleware);
-
   this.middlewareChain = [];
 
   let that = this;
@@ -17,7 +15,7 @@ function MiddleExecute (ctx, type) {
     }
   })
 
-  console.log(this.middlewareChain);
+  // console.log(this.middlewareChain);
 
   this.next = function(){
     if (this.index >= this.middlewareChain.length) {
@@ -28,6 +26,11 @@ function MiddleExecute (ctx, type) {
     this.index++;
     middlewareFn(ctx, this.next.bind(this));
   }
+
+  this.next();
+
+  //return ctx;
+
 }
 
 module.exports = MiddleExecute;

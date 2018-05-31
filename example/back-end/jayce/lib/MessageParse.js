@@ -1,4 +1,5 @@
 var Base = require('./base');
+var MiddleExecute = require('./middleExecute');
 
 /**
  * 消息解析器，根据客户端发送的消息构建请求对象和回复对象
@@ -20,35 +21,46 @@ function MessageParse() {
     let ctx = {}
 
     ctx.message = msg;
+    ctx.res = {
+      header: '',
+      body: ''
+    }
 
     /**
      * 给当前链接发送消息
      * @param {object} data 
      */
-    ctx.send = function (data) {
+    ctx.send = function () {
 
       // 实例化中间件执行器
-      let middleExecute = new MiddleExecute(data, 'response');
-      middleExecute.next();
+      MiddleExecute(ctx, 'response');
+      //middleExecute.next();
 
       // 返回处理后的上下文
-      ctx = middleExecute.ctx;
+      //reqctx = middleExecute.ctx;
 
-      con.send(JSON.stringify(data));
+      console.log(ctx);
+      con.send(JSON.stringify(ctx.res));
     }
 
     /**
      * 广播
      * @param {object} data 
      */
-    ctx.all = function (data) {
+    ctx.all = function (data, header) {
+      this.res.body = data;
+      this.res.header = {...header, ...this.res.header};
+
       that.clients.forEach(item => {
-        item.send(JSON.stringify(data));
+        item.send(this.res);
       });
     }
 
-    ctx.me = function (data) {
-      ctx.send
+    ctx.me = function (data, header) {
+      this.res.body = data;
+      //this.res.header = {...header, ...this.res.header};
+
+      ctx.send();
     }
 
     return ctx;

@@ -59,6 +59,8 @@
 
 所有的websocket消息都会经过Message Parse进行解析，构建对应的事件对象
 
+### middleware excute
+
 ### 事件模型
 
 服务端接受到的事件模型

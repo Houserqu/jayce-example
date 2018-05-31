@@ -33,5 +33,3 @@ jayceApp.listen({
     return true;//否则拒绝
   }
 })
-
-console.log(jayceApp.actions);
