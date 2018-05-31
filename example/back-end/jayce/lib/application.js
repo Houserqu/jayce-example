@@ -2,7 +2,6 @@ var WebSocket = require('ws').Server;
 var messageParse = require('./messageParse');
 var Base = require('./base');
 var MiddleExecute = require('./middleExecute');
-var 
 
 function Jayce (){
 
