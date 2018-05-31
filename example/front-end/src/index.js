@@ -12,8 +12,15 @@ import {
   Link,
   Switch
 } from 'react-router-dom';
+import { createStore } from 'redux'
+import {
+  Provider
+} from 'react-redux'
 
 import jayce from './jayce-fe/jayce';
+
+import todoApp from './reducers'​;
+const store = createStore(todoApp)
 
 ReactDOM.render(
   <Router history={jayce}>
