@@ -6,32 +6,31 @@ import About from './page/About';
 import Home from './page/Home';
 import NoMatch from './page/NoMatch';
 import registerServiceWorker from './registerServiceWorker';
-import {
-  Router,
-  Route,
-  Link,
-  Switch
-} from 'react-router-dom';
-import { createStore } from 'redux'
-import {
-  Provider
-} from 'react-redux'
+import { Router, Route, Link, Switch } from 'react-router-dom';
+import { Provider } from 'react-redux'
+import Jayce, { createJayceHistory, jayceReducer} from './jayce-fe';
 
-import jayce from './jayce-fe/jayce';
+import store from './store';
 
-import todoApp from './reducers'​;
-const store = createStore(todoApp)
+let jayceApp = new Jayce({
+  url: 'ws://localhost:3001'
+});
+
+//jayceApp.send('hahah');
+
+const history = createJayceHistory(store);
 
 ReactDOM.render(
-  <Router history={jayce}>
-    <div>
-      <App />
-      <Switch>
-        <Route exact path="/" component={Home}/>
-        <Route path="/about" component={About}/>
-        <Route component={NoMatch}/>
-      </Switch>
-    </div>
-    
-  </Router>, document.getElementById('root'));
+  <Provider store={store}>
+    <Router history={history}>
+      <div>
+        <App />
+        <Switch>
+          <Route exact path="/" component={Home}/>
+          <Route path="/about" component={About}/>
+          <Route component={NoMatch}/>
+        </Switch>
+      </div>
+    </Router>
+  </Provider>, document.getElementById('root'));
 registerServiceWorker();

@@ -4,6 +4,10 @@ var Base = require('./base');
 var MiddleExecute = require('./middleExecute');
 
 function Jayce (){
+  /**
+   * 连接池
+   */
+  this.clients = []
 
   /**
    * 添加一个action集合
@@ -51,11 +55,9 @@ function Jayce (){
 
     var that = this;
   
-    ws.on('connection', function(con){
-      console.log('connection');
-  
+    ws.on('connection', function(con){  
       that.clients.push(con);
-    
+      console.log('new client, current clients number:',that.clients.length);    
       con.on('message',function(msg){
         let ctx = messageParse.createContext(msg, con); // 构建 事件上下文
 
@@ -85,14 +87,12 @@ function Jayce (){
       });
     
       con.on('close',function(){
-        console.log('close by fe');
-  
         // 从连接池中清除
-        that.clients.forEach(function(item, index) {
+        that.clients.forEach(function(item, index, array) {
           if(con === item){
-            delete clients[index];
+            array.splice(index, 1);
           }
-        })
+        });
       });
     
       con.on('error',function(){
