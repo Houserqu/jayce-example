@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux'
 
 class App extends Component {
   constructor() {
@@ -49,10 +50,33 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.props);
     return (
-      <div>home</div>
+      <div>
+        home
+        {
+          this.props.article ? this.props.article.map(item => {
+            return <h2>{item}</h2>
+          })
+          :
+          null
+        }
+      </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  article: state.article
+})
+
+const mapDispatchToProps = dispatch => ({
+  
+})
+
+const Home = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)
+
+export default Home;

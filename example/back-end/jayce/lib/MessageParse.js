@@ -56,6 +56,23 @@ function MessageParse() {
       });
     }
 
+    /**
+     * 发布
+     * @param {object} data 
+     */
+    ctx.release = function (data) {
+      this.res.body = data;
+      this.res.header = { type: 'SUBSCRIBE',
+        ...this.res.header
+      };
+
+      console.log(this.clients);
+
+      this.clients.forEach(item => {
+        item.send(this.res);
+      });
+    }
+
     ctx.me = function (data, header) {
       this.res.body = data;
       //this.res.header = {...header, ...this.res.header};

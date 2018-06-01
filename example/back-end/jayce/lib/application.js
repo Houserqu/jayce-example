@@ -59,7 +59,7 @@ function Jayce (){
       that.clients.push(con);
       console.log('new client, current clients number:',that.clients.length);    
       con.on('message',function(msg){
-        let ctx = messageParse.createContext(msg, con); // 构建 事件上下文
+        let ctx = messageParse.createContext(msg, con, that.clients); // 构建 事件上下文
 
         // 实例化中间件执行器
         MiddleExecute(ctx, 'request');

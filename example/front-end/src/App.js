@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {
-  Link,
-} from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { loginService, createArticleService } from './service/user';
+
 class App extends Component {
   constructor() {
     super();
@@ -22,32 +22,12 @@ class App extends Component {
     Socket: null
   }
 
-  createWs = () => {
-    console.log('start connect');
-    var ws = new WebSocket('ws://localhost:3001');
-    ws.onmessage = function(msg) { console.log(msg); };
-    ws.onerror = function(){
-      console.log('error');
-    }
-    ws.onclose = function(){
-      console.log('close')
-    }
-    //ws.send('conn hello world');
-
-    this.setState({Socket: ws});
+  createArticle = () => {
+    createArticleService('new hahhaha');
   }
 
   sendLogin = () => {
-    console.log(this.state.Socket)
-    var send = {
-      header: {
-        url: '/login', data: 'login' 
-      },
-      body: 'login'
-    }
-    
-
-    this.state.Socket.send(JSON.stringify(send));
+    loginService();
   }
 
   sendSign = () => {
@@ -72,7 +52,7 @@ class App extends Component {
         </p>
 
         <div>
-          <button onClick={this.createWs}>建立连接</button>
+          <button onClick={this.createArticle}>新建文章</button>
           <button onClick={this.sendLogin}>发送login消息</button>
           <button onClick={this.sendSign}>发送sign消息</button>
           <button onClick={this.closeWs}>断开连接</button>

@@ -17,6 +17,7 @@ let jayceApp = new Jayce({
 });
 
 //jayceApp.send('hahah');
+console.log(store.getState());
 
 const history = createJayceHistory(store);
 
