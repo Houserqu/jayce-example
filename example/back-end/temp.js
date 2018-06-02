@@ -1,10 +1,9 @@
-var ary = [1,2,3,4,5,6,7];
+let o = {};
 
-ary.forEach(function(item, index, array){
-  console.log(index);
-  if(item == 3){
-    array.splice(index, 1);
-  }
-})
+o['A'] = 'a';
 
-console.log(ary);
+let action = 'A'
+
+console.log(o['A']);
+
+console.log(action in o);

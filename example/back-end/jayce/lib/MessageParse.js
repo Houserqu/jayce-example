@@ -1,5 +1,6 @@
 var Base = require('./base');
 var MiddleExecute = require('./middleExecute');
+var subscriber = require('./subscriber');
 
 /**
  * 消息解析器，根据客户端发送的消息构建请求对象和回复对象
@@ -21,6 +22,7 @@ function MessageParse() {
     let ctx = {}
 
     ctx.message = msg;
+    ctx.con = con;
     ctx.res = {
       header: '',
       body: ''
@@ -39,7 +41,6 @@ function MessageParse() {
       // 返回处理后的上下文
       //reqctx = middleExecute.ctx;
 
-      console.log('res : ', ctx);
       con.send(JSON.stringify(ctx.res));
     }
 
@@ -59,20 +60,23 @@ function MessageParse() {
     }
 
     /**
-     * 发布
+     * 发布 订阅消息
      * @param {object} data 
      */
-    ctx.release = function (data) {
-      this.res.body = data;
-      this.res.header = { type: 'SUBSCRIBE',
+    ctx.release = function (action) {
+      this.res.body = action;
+      this.res.header = { 
+        type: 'SUBSCRIBE',
         ...this.res.header
       };
 
       MiddleExecute(ctx, 'response');
 
-      clients.forEach(item => {
-        item.send(JSON.stringify(this.res));
-      });
+      if(action.type in subscriber) {
+        subscriber[action.type].forEach(item => {
+          item.send(JSON.stringify(this.res));
+        });
+      }
     }
 
     ctx.me = function (data, header) {

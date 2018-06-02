@@ -15,7 +15,6 @@ function Jayce (){
    * @param {Object} actionsRouter actions 对象
    */
   this.actionCollection = function(actionsRouter){
-
     this.actions = [...actionsRouter.actions];
   }
   
@@ -35,7 +34,6 @@ function Jayce (){
 
   
   this.use = function(type, fn){
-    console.log(type, fn);
     if (typeof fn === 'function' && typeof type == 'string') {
       this.middleware.push({
         type, fn
@@ -59,14 +57,13 @@ function Jayce (){
     ws.on('connection', function(con){  
       that.clients.push(con);
       console.log('new client, current clients number:',that.clients.length);
+      //console.log(con);
 
       con.on('message',function(msg){
         let ctx = messageParse.createContext(msg, con, that.clients); // 构建 事件上下文
 
         // 实例化中间件执行器
         MiddleExecute(ctx, 'request');
-
-        console.log(ctx);
 
         // 返回处理后的上下文
         //ctx = middleExecute.ctx;

@@ -9,6 +9,8 @@ class Article extends Component {
 
   componentWillMount() {
     console.log('will mount');
+
+    // 执行订阅操作
     jayce.subscribe('GET_NEW_ARTICLE');
   }
 
@@ -36,12 +38,9 @@ class Article extends Component {
 
   componentWillUnmount() {
     console.log('componentWillUnmount');
-        jayce.unsubscribe('GET_NEW_ARTICLE')
-
 
     // 取消订阅
-    //jayce.unsubscribe()
-
+    jayce.unsubscribe('GET_NEW_ARTICLE')
   }
 
   componentWillReceiveProps(nextProps) {
@@ -51,8 +50,6 @@ class Article extends Component {
   componentDidCatch(error, info) {
     console.log('componentDidCatch')
   }
-
-
 }
 
 export default Article; 

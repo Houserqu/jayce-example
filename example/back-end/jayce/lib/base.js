@@ -12,7 +12,8 @@ function Base(){
   this.clients = []; // 连接池池
   this.actions = []; // 事件处理
   this.middleware = [] // 中间件
-  this.name = 'base'
+  this.name = 'base';
+  this.subscriber = {};   // 订阅器
 
   // 缓存
   Base.instance = this;
