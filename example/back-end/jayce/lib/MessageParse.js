@@ -16,7 +16,7 @@ function MessageParse() {
    * 根据消息创建请求对象
    * @param {string} msg 
    */
-  this.createContext = function (msg, con) {
+  this.createContext = function (msg, con, clients) {
     // 创建上下文对象
     let ctx = {}
 
@@ -39,7 +39,7 @@ function MessageParse() {
       // 返回处理后的上下文
       //reqctx = middleExecute.ctx;
 
-      console.log(ctx);
+      console.log('res : ', ctx);
       con.send(JSON.stringify(ctx.res));
     }
 
@@ -51,7 +51,9 @@ function MessageParse() {
       this.res.body = data;
       this.res.header = {...header, ...this.res.header};
 
-      that.clients.forEach(item => {
+      MiddleExecute(ctx, 'response');
+
+      clients.forEach(item => {
         item.send(this.res);
       });
     }
@@ -66,16 +68,17 @@ function MessageParse() {
         ...this.res.header
       };
 
-      console.log(this.clients);
+      MiddleExecute(ctx, 'response');
 
-      this.clients.forEach(item => {
-        item.send(this.res);
+      clients.forEach(item => {
+        item.send(JSON.stringify(this.res));
       });
     }
 
     ctx.me = function (data, header) {
       this.res.body = data;
       //this.res.header = {...header, ...this.res.header};
+      //MiddleExecute(ctx, 'response');
 
       ctx.send();
     }

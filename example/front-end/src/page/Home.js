@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import jayce from '../jayce';
 
 class App extends Component {
   constructor() {
     super();
     console.log('about constructor');
+    
   }
 
   state = {
     Socket: null
+  }
+
+  componentWillMount() {
+    //jayce.subscribe('GET_NEW_ARTICLE');
   }
 
   createWs = () => {
@@ -55,14 +61,22 @@ class App extends Component {
       <div>
         home
         {
-          this.props.article ? this.props.article.map(item => {
-            return <h2>{item}</h2>
+          this.props.article ? this.props.article.map((item, index) => {
+            return <h2 key={index}>{item}</h2>
           })
           :
           null
         }
       </div>
     );
+  }
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+
+    // 取消订阅
+    //jayce.unsubscribe('GET_NEW_ARTICLE')
+
   }
 }
 

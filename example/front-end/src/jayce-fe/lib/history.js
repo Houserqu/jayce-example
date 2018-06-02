@@ -1,5 +1,6 @@
 import createHashHistory from "history/createHashHistory"
 
+
 function createJayceHistory(store) {
   const history = createHashHistory()
 
@@ -12,6 +13,8 @@ function createJayceHistory(store) {
     )
 
     // TODO: 告诉后台 订阅内容
+
+    //jayce.subscribe(['GET_NEW_ARTICLE']);
 
     store.dispatch({
       type: 'UPDATE_URL',

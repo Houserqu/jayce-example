@@ -15,6 +15,7 @@ function Jayce (){
    * @param {Object} actionsRouter actions 对象
    */
   this.actionCollection = function(actionsRouter){
+
     this.actions = [...actionsRouter.actions];
   }
   
@@ -57,7 +58,8 @@ function Jayce (){
   
     ws.on('connection', function(con){  
       that.clients.push(con);
-      console.log('new client, current clients number:',that.clients.length);    
+      console.log('new client, current clients number:',that.clients.length);
+
       con.on('message',function(msg){
         let ctx = messageParse.createContext(msg, con, that.clients); // 构建 事件上下文
 

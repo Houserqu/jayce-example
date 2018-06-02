@@ -11,12 +11,9 @@ import { Provider } from 'react-redux'
 import Jayce, { createJayceHistory, jayceReducer} from './jayce-fe';
 
 import store from './store';
+import jayce from './jayce';
+import Article from './page/Article';
 
-let jayceApp = new Jayce({
-  url: 'ws://localhost:3001'
-});
-
-//jayceApp.send('hahah');
 console.log(store.getState());
 
 const history = createJayceHistory(store);
@@ -29,6 +26,7 @@ ReactDOM.render(
         <Switch>
           <Route exact path="/" component={Home}/>
           <Route path="/about" component={About}/>
+          <Route path="/article" component={Article}/>
           <Route component={NoMatch}/>
         </Switch>
       </div>

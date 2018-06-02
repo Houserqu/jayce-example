@@ -1,8 +1,12 @@
 function messageParser(msg, store) {
-  let msg = JSON.parse(msg);
+  let response = JSON.parse(msg.data);
 
-  switch(msg.header.type) {
+  console.log(response);
+
+  switch(response.header.type) {
     case 'POST' : break;
-    case 'SUBSCRIBE' : store.dispatch(msg.body);
+    case 'SUBSCRIBE' : store.dispatch(response.body);
   }
 }
+
+export default messageParser;

@@ -15,7 +15,7 @@ Action.action('/login', function (ctx) {
 Action.action('/createarticle', function (ctx) {
   console.log(ctx.req.body);
   ctx.release({
-    action: 'GET_NEW_ARTICLE',
+    type: 'GET_NEW_ARTICLE',
     title: ctx.req.body
   })
 })

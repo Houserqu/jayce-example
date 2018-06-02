@@ -60,6 +60,7 @@ class App extends Component {
         <div>
           <Link to='/'>Home</Link>
           <Link to='/about'>About</Link>
+          <Link to='/article'>Article</Link>
         </div>
       </div>
     );

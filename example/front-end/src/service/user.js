@@ -1,8 +1,5 @@
-import Jayce from '../jayce-fe';
+import jayce from '../jayce';
 
-let jayce = new Jayce({
-  url: 'ws://localhost:3001'
-});
 let sign = function(){}
 
 let login = function(url){
@@ -15,4 +12,4 @@ let createArticle = function(title) {
 
 export default sign;
 export const loginService = login;
-export const createArticleService = createArticle;
+export const createArticleService = createArticle

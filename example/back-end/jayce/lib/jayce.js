@@ -6,6 +6,7 @@ var Action = require('./action')
 var requestBodyParse = require('./middleware/requestBodyParse');
 var responseBodyParse = require('./middleware/responseBodyParse');
 var errorAction = require('./action/error');
+var subscribeAction = require('./action/subscribe');
 
 exports = module.exports = createApp;
 
@@ -19,10 +20,11 @@ function createApp(options){
 
   // 注册系统事件
   app.actionCollection(errorAction);
+  app.actionCollection(subscribeAction);
 
   return app;
 }
 
 createApp.MessageParse = MessageParse;
 createApp.Response = Response;
-createApp.Action = Action
+createApp.Action = Action;

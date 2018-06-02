@@ -1,7 +1,8 @@
 import history from './history';
 import reducer from './reducer';
+import messageParser from './messageParser';
 
-function Jayce(option) {
+function Jayce(store, option) {
 
   // 判断是否存在实例
   if (typeof Jayce.instance === 'object') {
@@ -10,9 +11,11 @@ function Jayce(option) {
 
   var ws = new WebSocket(option.url);
 
+  console.log('new ws');
+
   ws.onmessage = function (msg) {
-    console.log(msg);
-    
+    // 消息解析器
+    messageParser(msg, store);
   };
   ws.onerror = function () {
     console.log('error');
@@ -35,10 +38,23 @@ function Jayce(option) {
 
   // 发送 订阅型消息
   this.subscribe = function(action) {
+    console.log('subscribe ', action)
     var send = {
       header: {
         type: 'SUBSCRIBE',
         url: '/subscribe',
+      },
+      body: action
+    }
+    ws.send(JSON.stringify(send));
+  }
+
+  this.unsubscribe = function(action) {
+    console.log('unsubscribe ', action)
+    var send = {
+      header: {
+        type: 'UNSUBSCRIBE',
+        url: '/unsubscribe',
       },
       body: action
     }
