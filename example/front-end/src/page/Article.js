@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import {
+  jaycesubscribe
+} from '../jayce-fe';
 import jayce from '../jayce';
 
 class Article extends Component {
@@ -7,12 +10,12 @@ class Article extends Component {
     this.state = {  };
   }
 
-  componentWillMount() {
-    console.log('will mount');
+  // componentWillMount() {
+  //   console.log('will mount');
 
-    // 执行订阅操作
-    jayce.subscribe('GET_NEW_ARTICLE');
-  }
+  //   // 执行订阅操作
+  //   jayce.subscribe('GET_NEW_ARTICLE');
+  // }
 
   componentDidMount() {
     console.log('cdm')
@@ -36,12 +39,12 @@ class Article extends Component {
     );
   }
 
-  componentWillUnmount() {
-    console.log('componentWillUnmount');
+  // componentWillUnmount() {
+  //   console.log('componentWillUnmount');
 
-    // 取消订阅
-    jayce.unsubscribe('GET_NEW_ARTICLE')
-  }
+  //   // 取消订阅
+  //   jayce.unsubscribe('GET_NEW_ARTICLE')
+  // }
 
   componentWillReceiveProps(nextProps) {
     console.log('componentWillReceiveProps')
@@ -52,4 +55,4 @@ class Article extends Component {
   }
 }
 
-export default Article; 
+export default jaycesubscribe(['GET_NEW_ARTICLE'], jayce)(Article);

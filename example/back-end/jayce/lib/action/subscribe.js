@@ -17,8 +17,6 @@ Action.action('/subscribe', function (ctx) {
     }
   }
 
-  console.log(subscriber[action]);
-
   ctx.me('订阅成功');
 })
 
