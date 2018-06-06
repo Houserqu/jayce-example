@@ -4,7 +4,6 @@ function requestBodyParse(ctx, next) {
     ctx.req = req;
     next();
   } else {
-    // 请求数据格式出错，修改url为 /error， 交给error事件处理器处理
     ctx.req = {
       header: {
         url: '/error'
