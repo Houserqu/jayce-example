@@ -1,5 +1,5 @@
-const Action = require('../../jayce').Action;
-const Response = require('../../jayce').Response;
+const Action = require('jayce-server').Action;
+const Response = require('jayce-server').Response;
 
 
 Action.action('/sign', function (ctx) {

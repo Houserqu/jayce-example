@@ -1,5 +1,5 @@
 const http = require('http');
-const jayce = require('./jayce');
+const jayce = require('jayce-server');
 
 const Response = jayce.Response;
 const Action = jayce.Action;
