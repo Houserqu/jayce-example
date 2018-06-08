@@ -1,4 +1,4 @@
-import Jayce from './jayce-fe';
+import Jayce from 'jayce-fe';
 import store from './store';
 
 let jayce = new Jayce(store, {

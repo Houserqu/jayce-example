@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import {
-  jaycesubscribe
-} from '../jayce-fe';
+import jayceSubscribe from 'jayce-dom';
 import jayce from '../jayce';
 
 class Article extends Component {
@@ -55,4 +53,4 @@ class Article extends Component {
   }
 }
 
-export default jaycesubscribe(['GET_NEW_ARTICLE'], jayce)(Article);
+export default jayceSubscribe(['GET_NEW_ARTICLE'], jayce)(Article);
