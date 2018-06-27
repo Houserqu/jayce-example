@@ -40,17 +40,23 @@ The client sends a new HTTP request every short period of time. The server will 
 
 **长轮询**
 
-客户端发起的请求，服务端在没有新的数据下不会立即返回，而是挂载状态，直到有新的数据的时候再响应这次请求，或者挂载时间达到服务器超时时间限制时候，立即返回，告诉客户端继续发送下一个请求，如此循环。这种方案相对“轮询”方案可以减少HTTP请求次数，但是服务端在挂载请求的时候，依然需要消耗额外的资源，而且难以管理维护。
+客户端发起的请求，服务端在没有新的数据下不会立即返回，而是处于挂载状态，直到有新的数据的时候再响应这次请求，或者挂载时间达到服务器时间限制时候，才会立即返回，告诉客户端继续发送下一个请求，如此循环。这种方案相对“轮询”方案可以减少HTTP请求次数，但是服务端在挂载请求的时候，依然需要消耗额外的资源，而且难以管理维护。
+
+The server will not immediately return the client-initiated request without new data, but will be in the mounted state until there is new data and then respond to this request, or when the mount time reaches the server time limit, the server  will return immediately, telling the client to continue sending the next request, and so on. This scheme can reduce the number of HTTP requests compared to the "polling" scheme, but the server still needs to consume extra resources when handling the mount request, and it is difficult to manage and maintain.
 
 **iframe流**
 
 该方案是在页面中插入一个隐藏的iframe，其src属性是一个长链接[?]请求，服务端可以不断的传入数据，客户端通过JavaScript进行处理，从而获取到持续更新的数据。这种方案的缺点依然是需要花费服务端额外的资源去维护长连接。
+
+The solution is to insert a hidden iframe in the page. The src attribute is a long link [?] request. The server can continuously transfer data, and the client processes it through JavaScript to obtain continuously updated data. The disadvantage of this solution is still the need to spend extra resources on the server to maintain long connections.
 
 ![长连接](../images/长连接.jpg)
 
 ##### 多页面应用
 
 多页面应用是将一个web应用根据功能划分成多个html页面，每个页面完成部分功能，用户需要在多个页面之间跳转完成工作。每次页面跳转需要重新请求html文件以及相关的css和JavaScript文件，然后进行渲染。这是目前最常见的web应用架构模式，其缺点是页面之间跳转会因为需要重新下载资源和重新渲染缺乏连贯性，影响用户浏览体验，而且会增加额外的HTTP请求和页面再次渲染的资源消耗，多个页面之间的数据也难以在浏览器端实现共享，需要借助服务的去维护，从而增加前后端开发的耦合度。优点是开发简单，利于搜索引擎检索。
+
+A multi-page application divides a web application into multiple html pages according to functions. Each page completes part of the function. The user needs to jump between multiple pages to complete the work. Every time the page jumps, it needs to re-request the html file and related css and JavaScript files, and then render. This is the most common mode of web application architecture. The disadvantage is that the jump between pages will result in a lack of coherence due to the need to re-download resources and re-render, affecting the user browsing experience, and adding additional HTTP requests and resources for page rendering again. Consumption, data between multiple pages is also difficult to share on the browser side, need to use services to maintain, thereby increasing the coupling of the front-end development. The advantage is that the development is simple and conducive to search engine search.
 
 ### Contributions
 
@@ -62,24 +68,39 @@ The client sends a new HTTP request every short period of time. The server will 
 4.	高效：数据交互速度更快，更加节约资源
 5.	低耦合：能够方便的开发出适合更多场景的web应用，甚至是app应用。
 
+In my opinion, I intend to implement a single-page application web development framework based on websocket communication, so that developers can easily and efficiently develop high-performance, real-time web applications. The main features of our framework are:
+
+1. Get started quickly: There aren't too many complex concepts introduced, making it easy for developers to quickly transition from the HTTP development model to the new framework.
+2. Simple: Reduce websocket development complexity.
+3. Two-way communication: Front-end and back-end can facilitate the initiative to push data, without having to care about the working principle of websocket.
+4. Efficient: faster data exchange, more resource-efficient
+5. Low coupling: It is easy to develop web applications that are suitable for more scenarios, even app applications.
 
 ## Related Work
 
 ### WebSocket
 
-绝大部分的web应用都是基于HTTP协议的，他简单可靠，经过多年发展，现在非常完善，但是由于其无连接的特点，所以每次只能处理一个请求，处理结束之后便断开，而且服务端无法主动发起请求，只能被动的接受请求。为了解决这个问题，于是IETF创建了WebSocket通讯协议，其主要特点是在单个TCP链接上进行全双工通讯，使得客户端和服务端都能够互相主动的推送数据。WebSocket建立链接的时候首先采用HTTP协议进行协商升级协议，后续数据传输再通过WebSocket协议去实现。建立WebSocket链接的过程如图所示。
+绝大部分的web应用都是基于HTTP协议的，它简单可靠，经过多年发展，现在非常完善，但是由于其无连接的特点，所以每次只能处理一个请求，处理结束之后便断开，而且服务端无法主动发起请求，只能被动的接受请求。为了解决这个问题，于是IETF创建了WebSocket通讯协议，其主要特点是在单个TCP链接上进行全双工通讯，使得客户端和服务端都能够互相主动的推送数据。WebSocket建立链接的时候首先采用HTTP协议进行协商升级协议，后续数据传输再通过WebSocket协议去实现。建立WebSocket链接的过程如图所示。
+
+Most of the web applications are based on the HTTP protocol. It is simple and reliable. After years of development, it is very complete. However, because of its connectionless nature, it can only handle one request at a time, and it is disconnected after the processing is over. The server cannot initiate the request, but can only passively accept the request. In order to solve this problem, the IETF created the WebSocket communication protocol. Its main feature is to perform full-duplex communication on a single TCP link, so that both the client and the server can push data to each other. When the WebSocket establishes a link, the protocol is first negotiated and upgraded using the HTTP protocol, and subsequent data transmission is implemented through the WebSocket protocol. The process of establishing a WebSocket link is shown in the figure.
 
 ![](../images/ws-connect.png)
 
 成功建立链接后客户端和服务端就可以随时进行双向数据通信，后续每次通信都不需要携带完整头部信息，直接传输数据文本，更加节省带宽资源，而且还支持拓展子协议。
 
+After successfully establishing the link, the client and the server can perform two-way data communication at any time, and each subsequent communication can directly transmit the data text without carrying the complete header information, thereby further saving the bandwidth resources and supporting the development of the sub-protocol.
+
 ### React
 
-React是用于构建用户界面的开源JavaScript库，诞生于FaceBook公司的工程师。React将数据和html封装成一个一个的组件，从而构成完整的页面，然后通过更改组件的state数据，使对应的html结构自动实现插入、删除、更改等操作，开发者不需要关注DOM的操作，react能够O(n)的时间复杂度内准确的实现复杂的dom更新，再结合浏览器的history api便能开发出功能复杂的web应用，用户也因此不需要频繁的切换页面便可完成复杂的业务需求。React的核心是虚拟DOM技术和Diff算法。
+React是用于构建用户界面的开源JavaScript库，诞生于FaceBook公司。React将数据和html封装成一个一个的组件，从而构成完整的页面，然后通过更改组件的state数据，使对应的html结构自动实现插入、删除、更改等操作，开发者不需要关注DOM的操作，React能够在O(n)的时间复杂度内准确的实现复杂的DOM更新，再结合浏览器的history api便能开发出功能复杂的web应用，用户也因此不需要频繁的切换页面便可完成复杂的业务需求。React的核心是虚拟DOM技术和Diff算法。
+
+React is an open source JavaScript library for building user interfaces and was born at FaceBook. React encapsulates data and html into components one by one, thus forming a complete page. Then, by changing the component's state data, the corresponding html structure is automatically inserted, deleted, changed, etc. The developer does not need to pay attention to the DOM operation. React can accurately implement complex DOM updates within the time complexity of O(n). Combined with the browser's history api, React can develop complex web applications. Users can therefore complete complexities without frequent page switching. Business needs. The core of React is virtual DOM technology and Diff algorithm.
 
 ##### 组件化
 
 React将html代码封装成独立的UI组件，组件之间可以相互嵌套构成复杂的组件，最终构成整个页面，可以简单理解成强化版的html标签。如下代码是一个结合jsx语法的组件实现，该组件是继承React.Conponent的类，其render方法返回的是要渲染的html标签，这种类型的组件可以获取到父组件传递的数据，也可以维护自己的数据，同时拥有生命周期事件和对应的方法。组件化让UI更加灵活，易于维护。
+
+React encapsulates html code into individual UI components that can be nested together to form complex components that ultimately form the entire page and can be easily understood as an enhanced html tag. The following code is a component implementation that combines jsx syntax. This component is a class that inherits from React.Conponent. The render method returns the html tag to be rendered. This type of component can obtain the data passed by the parent component and can also be maintained. Your own data, while having lifecycle events and corresponding methods. Componentization makes the UI more flexible and easier to maintain.
 
 ```js
 class HelloMessage extends React.Component {
@@ -97,17 +118,25 @@ class HelloMessage extends React.Component {
 
 React在数据更新的时候，根据更新后的状态用JavaScript构建DOM树，然后跟上次DOM树进行对比，找到两棵DOM树不同的地方，最后在浏览器真实DOM上对不同的地方进行更新，这样能够以最小改动去更新真实DOM结构，从而提高页面的性能。
 
+React builds the DOM tree with JavaScript based on the updated state when the data is updated, then compares it with the last DOM tree, finds the two DOM trees different places, and finally updates the different places in the browser's real DOM. This can update the real DOM structure with minimal changes, thereby improving the performance of the page.
+
 ##### Diff算法
 
 DOM树的比对虽然是在内存中进行，但是比对操作会在频繁的触发，所以依然需要保证其高效性。直接找出两棵树的不同处的时间复杂度是O(n^3)。React在比对过程中，从上到下逐层比较，同一层级的节点比较时，如果是同一类型的组件，继续进行分层比较，如果组件类型不同，直接替换整个节点及子节点。这样只需要遍历一次树，就可以完成DOM树的比对，将算法复杂度降低到O(n)。
+
+Although the comparison of the DOM tree is performed in memory, the comparison operation is triggered frequently, so it is still necessary to ensure its high efficiency. The time complexity of directly finding the difference between two trees is O(n^3). React during the comparison process, from top to bottom layer by layer comparison, when the nodes of the same level are compared, if it is the same type of component, continue to hierarchical comparison, if the component types are different, directly replace the entire node and child nodes. This requires only traversing the tree once to complete the DOM tree alignment, reducing the algorithm complexity to O(n).
 
 ### Redux
 
 Redux是一个开源的应用状态管理JavaScript库，提供可预测化的状态管理，Redux的思想是将视图和数据进行分离，从而实现前端的MVC模式开发[?]，能够使程序更加直观、低耦合。Redux可以配合多种UI库使用，在配合React使用的时候，其前端结构图如下图所示。
 
+Redux is an open source application state management JavaScript library that provides predictable state management. Redux's idea is to separate view and data, so as to achieve front end MVC pattern development [?], which can make the program more intuitive and low coupling. Redux can be used with a variety of UI libraries. When used with React, the front-end structure diagram is as shown below.
+
 ![react-redux](../images/react-redux.png)
 
 我们的框架采用redux作为数据管理器，在任何时候都可以方便的对组件的状态进行同步，让数据可以预测和维护。
+
+Our framework uses redux as a data manager. It is easy to synchronize the state of components at any time so that data can be predicted and maintained.
 
 ## Our framework
 
@@ -115,24 +144,36 @@ Redux是一个开源的应用状态管理JavaScript库，提供可预测化的�
 
 本框架分为客户端部分和服务端部分。我们框架包含两种消息通讯机制，分别是立即消息和订阅消息，前者是用websocket实现类似HTTP请求的一对一消息，后者基本实现思想是发布和订阅模式，客户端自动通知服务端订阅内容，服务端在有数据更新的时候通知订阅的用户。
 
+This framework is divided into a client part and a server part. Our framework contains two message communication mechanisms, namely, immediate messages and subscription messages. The former is a one-to-one message that uses websocket to implement HTTP-like requests. The basic idea of the latter is the publish and subscribe mode. The client automatically notifies the server of subscription content. The server informs the subscribed user when data is updated.
+
 客户端是基于react和redux构建的单页应用，由携带数据的action触发store的更新，store更新触发视图的自动重新渲染，用户在视图上传发起action，从而形成一个闭环。我们框架在对react的组件进一步包装，使其在挂载和销毁的时候自动通过WebSocket通知服务端更新用户和redux的事件之间的订阅关系。同时服务端在WebSocket基础上实现了类似HTTP请求的立即消息机制，使得客户端可以发起能得到立即回复的请求，服务端有对应路由匹配和控制器处理请求，并可以处理服务的主动发布的逻辑，即根据订阅器里的用户订阅事件进行消息推送，消息数据内容为redux action 对象，被订阅的组件能够准确的收到消息并自动触发事件，从而更新store，最终自动更新视图。系统架构下图所示。
+
+The client is a single-page application constructed based on react and redux. The action that carries the data triggers the update of the store. The store update triggers the automatic re-rendering of the view. The user initiates the action in the view upload, thus forming a closed loop. Our framework further packages the components of react so that when it is mounted and destroyed, it automatically informs the server through WebSocket to update the subscription relationship between the user and redux events. At the same time, the server implements an immediate message mechanism similar to an HTTP request on the basis of WebSocket, so that the client can initiate a request for immediate reply, the server has corresponding route matching and the controller processes the request, and can handle the active publishing logic of the service. That is, the message is pushed according to the user subscription event in the subscriber. The content of the message data is a redux action object, and the subscribed component can receive the message accurately and trigger the event automatically, thereby updating the store, and finally automatically updating the view. The system architecture is shown in the figure below.
 
 ![e](../images/system.png)
 
 
 ##### 服务端架构
 
-服务端主要由消息解析器、路由、控制器、订阅器和链接池组成。WebSocket接受到消息后会经过消息解析器中的请求中间件层层处理，然后构造成一个请求对象，交给相匹配的路由处理，路由会调用相关的控制器对当前请求进行业务逻辑处理，例如进行数据库操作等，处理完后，控制器可以根据订阅器中的用户订阅情况和连接池中的活跃用户构造返回内容，返回的内容依然会经过消息解析器中的返回中间件层层处理，最后通过WebSocket发送给用户。架构图图所示。
+服务端主要由消息解析器、路由、控制器、订阅器和连接池组成。WebSocket接受到消息后会经过消息解析器中的请求中间件层层处理，然后构造成一个请求对象，交给相匹配的路由处理，路由会调用相关的控制器对当前请求进行业务逻辑处理，例如进行数据库操作等，处理完后，控制器可以根据订阅器中的用户订阅情况和连接池中的活跃用户构造返回内容，返回的内容依然会经过消息解析器中的返回中间件层层处理，最后通过WebSocket发送给用户。架构图图所示。
+
+The server consists of message parsers, routes, controllers, subscribers, and connection pools. After receiving the message, WebSocket will process the request middleware in the message parser, and then construct a request object and send it to the matching route. The route will call the related controller to process the current request for business logic, for example, Database operations, etc. After processing, the controller can return content based on the user's subscription status in the subscriber and active user constructs in the connection pool. The returned content will still be processed through the middle layer returned by the message parser, and finally Send it to users via WebSocket. The architecture diagram shows.
 
 ![e](../images/server.png)
 
-我们框架中提到的路由不是传统框架中的路由，但是实现的是相同的功能，路由的作用是对HTTP请求的路径进行匹配，然后进行响应，事实证明这种方式能够有效的给每一个HTTP请求添加唯一标识。我们框架也借鉴这种方式，对客户端的每一条消息添加一个头部对象，该对象就包含url属性，服务端根据url建立路由机制，是框架能够处理多样的websocket消息。
+我们框架中提到的路由不是传统框架中的路由，但是实现的是相同的功能，路由的作用是对HTTP请求的路径进行匹配，然后进行响应，事实证明这种方式能够有效的给每一个HTTP请求添加唯一标识。我们框架也借鉴这种方式，对客户端的每一条消息添加一个头部对象，该对象就包含url属性，服务端根据url建立路由机制，使框架能够处理多样的websocket消息。
+
+The route mentioned in our framework is not a route in the traditional framework, but the same function is implemented. The role of the route is to match the path of the HTTP request and then respond. It is proved that this method can effectively give each HTTP Request to add a unique identifier. Our framework also learns from this approach by adding a header object to each message on the client. The object contains the url attribute. The server creates a routing mechanism based on the url so that the framework can handle a variety of websocket messages.
 
 结合中间件和路由就可以完成多种业务需求，为了实现自动推送新消息功能，我们用订阅器实现用户以及其订阅关系，框架内置一个值为/subsribe的路由，该路由接受body为redux事件名的请求，并添加当前用户与订阅事件到订阅器中，与之对应的/unsubscribe路由则是删除订阅器中当前用户对该事件的订阅。开发者可以创建任何需要的路由以及控制器实现需要的功能，例如登录、获取文章等需要立即返回的数据请求，客户端会通过请求的唯一标示来保证同一次请求与返回。
+
+Combining middleware and routing can accomplish various business requirements. In order to implement the function of automatically pushing new messages, we use a subscriber to implement the user and its subscription relationship. The framework has a route with a value of /subsribe, and the route accepts the body as the redux event name. The request is added, and the current user and the subscription event are added to the subscriber, and the corresponding/unsubscribe route is to delete the current subscriber's subscription to the event in the subscriber. Developers can create any needed routes and controllers to implement the required functions, such as logging in, getting articles, and other data requests that need to be returned immediately. The client will ensure the same request and return through the unique identifier of the request.
 
 ##### 客户端架构
 
 客户端主要包括三个部分，视图、状态管理器和WebSocket消息处理器。我们框架的前端部分分两个子框架去实现，分别是jayce和jayce-dom，这样能够将视图层与数据处理层分离，以实现与多种视图框架配合使用，例如vue和angular等。首先我们框架通过传入redux的store对象和配置信息生成一个全局唯一的Jayce实例，该实例包含WebSocket执行方法和redux事件执行方法，实例化Jayce实例后，就会建立WebSocket链接，对于需要服务端主动推送新数据的内容，开发者在编写react组件的时候，可以调用jayce-dom的jayceSubscribe方法将任意组件包装成订阅组件，该组件在生命周期内会通知服务端当前用户订阅redux事件，在组件销毁的时候也请求服务端当前用户取消redux事件的订阅。对于立即消息，用户可以调用Jayce实例的send方法发送请求到服务端，其回调方法里会得到服务端返回的数据，编写上跟AJAX请求无异。前端架构如图所示。
+
+The client consists of three parts, the view, the state manager, and the WebSocket message processor. The front end of our framework is implemented in two sub-frameworks, namely jayce and jayce-dom, which can separate the view layer from the data processing layer to enable the use of multiple view frames, such as vue and angular. First, our framework generates a globally unique Jayce instance by passing in redux's store object and configuration information. This instance contains the WebSocket execution method and the redux event execution method. After the Jayce instance is instantiated, a WebSocket link will be established for the server-needed initiative. Pushing the contents of new data, the developer can write jayce-dom's jayceSubscribe method to wrap any component into a subscription component when writing the react component. This component will notify the server's current user to subscribe to the redux event during the life cycle, and destroy the component. Also requests the current user of the server to cancel the redux event subscription. For the immediate message, the user can call the send method of the Jayce instance to send the request to the server. The callback method will get the data returned by the server. The write is the same as the AJAX request. The front-end architecture is as shown in the figure.
 
 ![e](../images/jayce.png)
 
@@ -140,9 +181,13 @@ Redux是一个开源的应用状态管理JavaScript库，提供可预测化的�
 
 除了浏览器初次渲染需要的文件通过HTTP请求外，我们让后续的所有的数据交互都通过WebSocket实现，而不同的类型的消息会有不同的处理逻辑，为了保证不同类型的消息能够被正确处理以及系统的可拓展性，我们在WebSocket的消息基础上建立了一个简单的协议。WebSocket传输的数据内容是字符串文本，在进行消息传递前，都需要经过message parser进行解析。发送端封构造json格式的请求对象，然后转换成json字符串交给WebSocket传输，接收端再解析成json对象，由于客户端和服务端都是基于JavaScript开发，所以json能够直接被处理。每个消息对象包含两个属性，header 和 body。body为数据内容，header有两个固有属性url和type，前者是路由标识，告诉服务端用哪个路由处理器处理，后者是请求类型，框架内置三种类型：IMMEDIATELY、SUBSCRIBE、UNSUBSCRIBE，分别是立即型消息、订阅型消息、取消订阅型消息。除此外，应用也可以根据需要添加其他header信息，从而实现更灵活的业务。
 
+In addition to the files required for the initial rendering of the browser through the HTTP request, we allow all subsequent data interactions to be implemented through WebSocket, and different types of messages will have different processing logic, in order to ensure that different types of messages can be processed correctly and With the scalability of the system, we have established a simple protocol based on the WebSocket message. WebSocket transmission of data content is a string of text, in the message before passing, need to be parsed by the message parser. The sender constructs the request object in json format, and then converts it into a json string for transmission to the WebSocket. The receiver then parses it into a json object. Since both the client and the server are based on JavaScript, json can be processed directly. Each message object contains two attributes, header and body. The body is the data content. The header has two intrinsic properties: url and type. The former is the route identifier, which tells the server which route processor to use for processing. The latter is the request type. The frame has three built-in types: IMMEDIATELY, SUBSCRIBE, and UNSUBSCRIBE. Immediate messages, subscription messages, and unsubscribe messages. In addition, applications can also add other header information as needed to achieve more flexible services.
+
 ### 自动订阅组件
 
 React通过编写组件的方式去构建浏览器DOM结构，每个组件都有自己的生命周期方法，我们框架在React组件的基础上进行了封装，封装通过`jayceSubscribe()`方法实现。该方法接受两个参数，第一个参数是需要订阅的redux事件数组，第二参数是实例化的Jayce对象，调用`jayceSubscribe()`方法后返回的是一个匿名方法，接受一个react 组件为参数，返回包装后的Jayce 组件。调用示例：
+
+React builds the browser DOM structure by writing components. Each component has its own lifecycle method. Our framework encapsulates the React component and the package is implemented using the `jayceSubscribe()` method. This method accepts two arguments. The first argument is an array of redux events to be subscribed to. The second argument is an instantiated Jayce object. Calling the `jayceSubscribe()` method returns an anonymous method accepting a react component as an argument. , Return the packaged Jayce component. Invoking the example:
 
 ```js
 export default jayceSubscribe(['GET_NEW_ARTICLE'], jayce)(Article);
@@ -152,21 +197,36 @@ Jayce包装组件的过程：
 
 1. 创建一个新组件
 2. 在componentWillMount的生命周期事件里执行请求订阅方法
-3. componentWillUnmount的生命周期事件里执行取消订阅请求方法
+3. 在componentWillUnmount的生命周期事件里执行取消订阅请求方法
 4. 添加需要被包装的组件作为子组件
 5. 返回这个新组件
+
+Which Article is the need to subscribe to the components, the final export is Jayce packaged components.
+The Jayce packaging component process:
+
+1. Create a new component
+2. Perform a request subscription method in the lifecycle event of componentWillMount
+3. Perform unsubscribe request method in lifecycle event of componentWillUnmount
+4. Add components that need to be packaged as subcomponents
+5. Return to this new component
 
 ### 订阅器
 
 为了实现服务端能够准确、主动的推送实时性数据，所以服务端需要维护一个用户的store订阅器。订阅器保存的是客户端的redux事件与用户的对用关系，数据结构为一个JavaScript对象，属性名为事件名称，值为订阅该事件的用户连接对象数组，框架内置的/subsribe和/unsubscribe路由及相关控制器实现了对订阅器的自动管理，对开发者而言无需关心订阅器内容，只需根据业务订阅和发布事件，对应的用户都能够自动获取到数据和触发redux事件。
 
+In order to enable the server to accurately and proactively push real-time data, the server needs to maintain a user's store subscriber. The subscriber saves the client's redux event and the user's use relationship, the data structure is a JavaScript object, the property name is the event name, and the value is the user connection object array that subscribes to the event, the built-in /subsribe and/unsubscribe routes of the framework and The related controller implements the automatic management of the subscriber, and does not need to care about the subscriber content for the developer. According to the business subscription and the publishing event, the corresponding user can automatically obtain the data and trigger the redux event.
+
 ### Message Parse
 
 Message Parser是服务端和客户端可靠通信的枢纽，WebSocket只是建立服务端和客户端之间的全双工通信的渠道，所以我们在需要一个方便，可拓展的消息解析功能，使这些文本消息能够被框架正确识别和处理。通过上文约定的消息协议，在服务端，Message Parser会在服务启动的时候注册系统级和用户级中间件，接收到消息的时候Message Parser会根据消息内容构造json格式的请求对象，然后交个每个'request'型的中间件处理，最后到达路由处理器，服务端返回消息到客户端的时候，返回的消息对象依然会经过消息处理器中的'response'中间件处理，最后处理成为符合消息协议规定的文本内容交给WebSocket发送给客户端。
 
+Message Parser is the hub of reliable communication between server and client. WebSocket is only a channel for establishing full-duplex communication between server and client. Therefore, we need a convenient and expandable message parsing function to enable these text messages to It is correctly identified and processed by the framework. Through the message protocol agreed above, on the server, Message Parser will register system-level and user-level middleware when the service is started. When receiving the message, Message Parser will construct the request object in json format according to the message content, and then submit a message. Each 'request' type of middleware is processed and finally reaches the route processor. When the server returns a message to the client, the returned message object will still be processed by the 'response' middleware in the message handler, and finally processed into a match message. The text content specified in the agreement is sent to the client by WebSocket.
+
 ### middleware
 
 中间件是框架的一个重要组成部分。每一个消息都会流经每一个中间件，这样创建合理的中间件能够完成各种业务需求，例如身份认证、统计分析、消息拦截等。一个中间就是一个方法，接受两个参数，第一个请求对象，第二个是执行下一个中间件的方法，当中间件被注册到框架后，该中间件方法接受到的分别是上一个中间件处理完后的请求对象和调用下一个中间件的方法。如下是框架内置的构建请求对象的中间件示例，它是请求阶段第一个中间件。
+
+Middleware is an important part of the framework. Every message flows through every middleware, so creating reasonable middleware can fulfill various business requirements, such as identity authentication, statistical analysis, message interception, and so on. A middle is a method that accepts two parameters. The first is the request object. The second is the method to execute the next middleware. After the middleware is registered in the framework, the middleware method receives the previous one. The middleware after processing the request object and the method to call the next middleware. The following is an example of a middleware for a build request object built into the framework. It is the first middleware in the request phase.
 
 ```js
 function requestBodyParse(ctx, next) {
@@ -188,21 +248,29 @@ function requestBodyParse(ctx, next) {
 module.exports = requestBodyParse
 ```
 
-该中间件将接受到的消息字符根据消息协议规定格式串转换成对象，处理完后调用next()方法，执行下一个中间件。如果转换失败，则交给框架内置的/error路由处理。然后在框架实例对象上调用use方法注册到消息解析器中。
+该中间件将接收到的消息字符根据消息协议规定格式串转换成对象，处理完后调用next()方法，执行下一个中间件。如果转换失败，则交给框架内置的/error路由处理。然后在框架实例对象上调用use方法注册到消息解析器中。
+
+The middleware converts the received message character into an object string according to the format specified by the message protocol. After processing, the next() method is called to execute the next middleware. If the conversion fails, it is passed to the framework's built-in /error routing process. Then call the use method on the framework instance object to register with the message parser.
 
 ### Process
 
-在实际使用中，主要存在三个服务端与客户端的交互方式，分别是客户端发送立即得到返回的消息、客户端发送订阅redux和取消订阅事件的消息、服务端发送执行redux事件的消息。
+在实际使用中，主要存在三个服务端与客户端的交互方式，分别是客户端发送后立即得到返回的消息、客户端发送订阅redux和取消订阅事件的消息、服务端发送执行redux事件的消息。
+
+In practical use, there are mainly three interaction modes between the server and the client. They are the message returned immediately after sending by the client, the message sent by the client to subscribe to the redux and unsubscribing event, and the message sent by the server to execute the redux event.
 
 ##### 立即请求返回流程
 
-一个web应用中会有大部分操作是立即返回操作，需要马上得到结果。例如提交表单、打开文章详情页面等。这种消息需要保证请求与返回一一对应，即每一次客户端发送消息都会有服务端唯一应答，跟HTTP请求的特点一样。为了实现这一特性，客户端每次发出消息都会在请求对象头部添加唯一标识，并将其添加到请求等待队列，服务端处理请求后返回携带这个标识的消息对象，客户端得到返回后会去请求对待队列中查找并执行相关回调方法。流程简化后如图所示。
+一个web应用中会有大部分操作是立即返回操作，需要马上得到结果，例如提交表单、打开文章详情页面等。这种消息需要保证请求与返回一一对应，即每一次客户端发送消息都会有服务端唯一应答，跟HTTP请求的特点一样。为了实现这一特性，客户端每次发出消息都会在请求对象头部添加唯一标识，并将其添加到请求等待队列，服务端处理请求后返回携带这个标识的消息对象，客户端得到返回后会去请求对待队列中查找并执行相关回调方法。流程简化后如图所示。
+
+Most of the operations in a web application are immediate return operations, ie, immediate results, such as submitting a form, opening an article details page, etc. This kind of message needs to ensure that the request and return are in one-to-one correspondence. That is, each time the client sends a message, it will have a unique reply from the server, which is the same as the characteristics of the HTTP request. In order to achieve this feature, each time the client issues a message, it adds a unique identifier to the request object's header and adds it to the request waiting queue. After the server processes the request, it returns the message object carrying the identifier. After the client is returned, the client will be returned. Go to the request queue to find and execute related callback methods. The process is simplified as shown.
 
 ![e](../images/immediately.png)
 
 ##### 自动订阅流程
 
-自定订阅消息是组件自动完成的，组件会在相关的生命周期方法里发送消息通知服务端订阅和取消订阅redux事件，然后服务端在订阅器中更新该用户对redux 事件的订阅关系。
+自动订阅消息是组件自动完成的，组件会在相关的生命周期方法里发送消息通知服务端订阅和取消订阅redux事件，然后服务端在订阅器中更新该用户对redux事件的订阅关系。
+
+The automatic subscription message is automatically completed by the component. The component sends a message in the relevant life cycle method to notify the server to subscribe and unsubscribe the redux event, and then the service side updates the subscriber's subscription relationship to the redux event in the subscriber.
 
 ![e](../images/subscribe.png)
 
