@@ -4,19 +4,29 @@
 
 ### Background
 
-目前绝大部分web应用的都是基于HTTP协议通尊，及由客户端主动发起请求的方式进行数据的交互，这种方式在基本上能满足大部分网站的功能需求，是非常完善的web应用解决方案。随着网络的普及和快速发展，数据的变化变得越来越快，用户的数据的实时性要求也越来越高，在对实时性要求较高的web应用上，基于HTTP通讯的方式就不太实用，因为HTTP请求只能从客户端主动发出，服务端的有新的数据的时候，客户端并不能第一时间获取得到。为了解决这一问题，基于HTTP的解决方案主要有轮询、长轮询和Iframe流。这种三种解决方案缺点就是会浪费很多带宽资源和服务器资源。
+目前绝大部分web应用的都是基于HTTP协议通讯，及由客户端主动发起请求的方式进行数据的交互，这种方式在基本上能满足大部分网站的功能需求，是非常完善的web应用解决方案。随着网络的普及和快速发展，数据的变化变得越来越快，用户的数据的实时性要求也越来越高，在对实时性要求较高的web应用上，基于HTTP通讯的方式就不太实用，因为HTTP请求只能从客户端主动发出，服务端的有新的数据的时候，客户端并不能第一时间获取得到。为了解决这一问题，基于HTTP的解决方案主要有轮询、长轮询和Iframe流。这种三种解决方案缺点就是会浪费很多带宽资源和服务器资源。
+
+At present, most of the web applications are based on the HTTP protocol and the data is exchanged by the client to initiate the request. This method can basically meet the functional requirements of most websites and is a very complete web application solution.With the popularization and rapid development of networks, data changes have become faster and faster. The real-time requirements of users' data have also become higher and higher. For web applications that require high real-time performance, HTTP-based communication is not practical. Because HTTP requests can only be initiated from the client, new data on the server side cannot be obtained by the client for the first time.To solve this problem, HTTP-based solutions mainly include polling, long polling, and Iframe streaming. The disadvantage of these three solutions is that it will waste a lot of internet resources and server resources.
 
 HTML5标准中定义了新的通讯方式：WebSocket，该通讯协议目的解决客户端和服务端之间的双向通讯问题，而且在主流浏览器中得到了广泛的支持。目前websocket在web上的应用主要有实时聊天、实时监控、游戏等。事实证明是一个非常可靠的技术。
 
+The HTML5 standard defines a new communication method: WebSocket. The purpose of this communication protocol is to solve the full duplex communication problem between the client and the server, and it has been widely supported in mainstream browsers. Currently websocket applications on the web mainly include real-time chat, real-time monitoring, and games. It turns out to be a very reliable technology.
+
 单页应用是现在web开发的一个主流解决方案，它可以在一个页面中完成传统web应用中多个页面才能完成的复杂功能，而且性能更好，大大提升了用户体验。如果结合WebSocket技术，可以构建出的实时单页web应用，能够进一步提升效率，适应更多复杂的数据需求。
+
+Single page application is a mainstream solution for web development now. It can complete complex functions in multiple pages in a traditional web application in one page[优化], and has better performance and greatly enhances the user experience. If combined with WebSocket technology, real-time single-page web applications can be built to further increase efficiency and adapt to more complex data needs.
 
 ### Motivation
 
-现在WebSocket的应用还不是非常广泛，一般在特定实时场景下才会在web应用中部分采用，相对HTTP请求，WebSocket模式有很大不同，在过于复杂的场景下，会增加开发难度，而且也缺少相对成型的解决方案和参考资料。
+现在WebSocket的应用还不是非常广泛，一般在特定实时场景下才会在web应用中部分采用，相对HTTP请求，WebSocket模式有很大不同，在过于复杂的场景下，会增加开发难度，而且也缺少成熟的解决方案和参考资料。
+
+Currently, the application of WebSocket is not very extensive, and it is generally adopted in web applications in certain real-time scenarios. Compared to HTTP requests, the WebSocket mode is very different. In a complicated scenario, it will increase the difficulty of development, and it is also lacking mature solutions and references.
 
 如果在不增加太多开发复杂度的情况下全站采用websocket进行通讯，并结合单页应用的特点，能够使web的体验会提高很多。在这种单页应用+websocket模式下，一个页面就完成所有功能，前后端只需要建立一个websocket链接就可以完成所有的数据交互。
 
 所以我打算开发出一个单页应用+WebSocket通讯的web系统开发框架，让开发者可以快速开发出功能复杂的、高效的实时web应用，提供一个此类应用的解决方案和开发模式。
+
+So I plan to develop a web system development framework for single-page application that base on WebSocket communication, providing a solution and development model for such applications, allowing developers to quickly develop functional and efficient real-time web applications.
 
 ### Current Methods
 
@@ -25,6 +35,8 @@ HTML5标准中定义了新的通讯方式：WebSocket，该通讯协议目的解
 **轮询**
 
 客户端在每隔一段较短的时间里发送一次新的HTTP请求，服务器无论是否有新的数据的时候都会立即返回结果。这种方式在服务端没有新的数据的时候会产生很多无效的请求，从而浪费带宽和服务器资源。
+
+The client sends a new HTTP request every short period of time. The server will return the result immediately whenever there is new data. This method will generate many invalid requests when there is no new data on the server, thus wasting bandwidth and server resources.
 
 **长轮询**
 
