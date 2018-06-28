@@ -114,13 +114,13 @@ class HelloMessage extends React.Component {
 }
 ```
 
-##### 虚拟DOM
+##### 虚拟DOM  Virtual Document Object Model
 
 React在数据更新的时候，根据更新后的状态用JavaScript构建DOM树，然后跟上次DOM树进行对比，找到两棵DOM树不同的地方，最后在浏览器真实DOM上对不同的地方进行更新，这样能够以最小改动去更新真实DOM结构，从而提高页面的性能。
 
 React builds the DOM tree with JavaScript based on the updated state when the data is updated, then compares it with the last DOM tree, finds the two DOM trees different places, and finally updates the different places in the browser's real DOM. This can update the real DOM structure with minimal changes, thereby improving the performance of the page.
 
-##### Diff算法
+##### Diff算法  Diff Algorithm
 
 DOM树的比对虽然是在内存中进行，但是比对操作会在频繁的触发，所以依然需要保证其高效性。直接找出两棵树的不同处的时间复杂度是O(n^3)。React在比对过程中，从上到下逐层比较，同一层级的节点比较时，如果是同一类型的组件，继续进行分层比较，如果组件类型不同，直接替换整个节点及子节点。这样只需要遍历一次树，就可以完成DOM树的比对，将算法复杂度降低到O(n)。
 
@@ -153,7 +153,7 @@ The client is a single-page application constructed based on react and redux. Th
 ![e](../images/system.png)
 
 
-##### 服务端架构
+##### 服务端架构 Server Architecture
 
 服务端主要由消息解析器、路由、控制器、订阅器和连接池组成。WebSocket接受到消息后会经过消息解析器中的请求中间件层层处理，然后构造成一个请求对象，交给相匹配的路由处理，路由会调用相关的控制器对当前请求进行业务逻辑处理，例如进行数据库操作等，处理完后，控制器可以根据订阅器中的用户订阅情况和连接池中的活跃用户构造返回内容，返回的内容依然会经过消息解析器中的返回中间件层层处理，最后通过WebSocket发送给用户。架构图图所示。
 
@@ -169,7 +169,7 @@ The route mentioned in our framework is not a route in the traditional framework
 
 Combining middleware and routing can accomplish various business requirements. In order to implement the function of automatically pushing new messages, we use a subscriber to implement the user and its subscription relationship. The framework has a route with a value of /subsribe, and the route accepts the body as the redux event name. The request is added, and the current user and the subscription event are added to the subscriber, and the corresponding/unsubscribe route is to delete the current subscriber's subscription to the event in the subscriber. Developers can create any needed routes and controllers to implement the required functions, such as logging in, getting articles, and other data requests that need to be returned immediately. The client will ensure the same request and return through the unique identifier of the request.
 
-##### 客户端架构
+##### 客户端架构 Client Architecture
 
 客户端主要包括三个部分，视图、状态管理器和WebSocket消息处理器。我们框架的前端部分分两个子框架去实现，分别是jayce和jayce-dom，这样能够将视图层与数据处理层分离，以实现与多种视图框架配合使用，例如vue和angular等。首先我们框架通过传入redux的store对象和配置信息生成一个全局唯一的Jayce实例，该实例包含WebSocket执行方法和redux事件执行方法，实例化Jayce实例后，就会建立WebSocket链接，对于需要服务端主动推送新数据的内容，开发者在编写react组件的时候，可以调用jayce-dom的jayceSubscribe方法将任意组件包装成订阅组件，该组件在生命周期内会通知服务端当前用户订阅redux事件，在组件销毁的时候也请求服务端当前用户取消redux事件的订阅。对于立即消息，用户可以调用Jayce实例的send方法发送请求到服务端，其回调方法里会得到服务端返回的数据，编写上跟AJAX请求无异。前端架构如图所示。
 
@@ -177,13 +177,13 @@ The client consists of three parts, the view, the state manager, and the WebSock
 
 ![e](../images/jayce.png)
 
-### 消息协议
+### 消息协议 Message Protocol
 
 除了浏览器初次渲染需要的文件通过HTTP请求外，我们让后续的所有的数据交互都通过WebSocket实现，而不同的类型的消息会有不同的处理逻辑，为了保证不同类型的消息能够被正确处理以及系统的可拓展性，我们在WebSocket的消息基础上建立了一个简单的协议。WebSocket传输的数据内容是字符串文本，在进行消息传递前，都需要经过message parser进行解析。发送端封构造json格式的请求对象，然后转换成json字符串交给WebSocket传输，接收端再解析成json对象，由于客户端和服务端都是基于JavaScript开发，所以json能够直接被处理。每个消息对象包含两个属性，header 和 body。body为数据内容，header有两个固有属性url和type，前者是路由标识，告诉服务端用哪个路由处理器处理，后者是请求类型，框架内置三种类型：IMMEDIATELY、SUBSCRIBE、UNSUBSCRIBE，分别是立即型消息、订阅型消息、取消订阅型消息。除此外，应用也可以根据需要添加其他header信息，从而实现更灵活的业务。
 
 In addition to the files required for the initial rendering of the browser through the HTTP request, we allow all subsequent data interactions to be implemented through WebSocket, and different types of messages will have different processing logic, in order to ensure that different types of messages can be processed correctly and With the scalability of the system, we have established a simple protocol based on the WebSocket message. WebSocket transmission of data content is a string of text, in the message before passing, need to be parsed by the message parser. The sender constructs the request object in json format, and then converts it into a json string for transmission to the WebSocket. The receiver then parses it into a json object. Since both the client and the server are based on JavaScript, json can be processed directly. Each message object contains two attributes, header and body. The body is the data content. The header has two intrinsic properties: url and type. The former is the route identifier, which tells the server which route processor to use for processing. The latter is the request type. The frame has three built-in types: IMMEDIATELY, SUBSCRIBE, and UNSUBSCRIBE. Immediate messages, subscription messages, and unsubscribe messages. In addition, applications can also add other header information as needed to achieve more flexible services.
 
-### 自动订阅组件
+### 自动订阅组件 Automatic Subscription Component
 
 React通过编写组件的方式去构建浏览器DOM结构，每个组件都有自己的生命周期方法，我们框架在React组件的基础上进行了封装，封装通过`jayceSubscribe()`方法实现。该方法接受两个参数，第一个参数是需要订阅的redux事件数组，第二参数是实例化的Jayce对象，调用`jayceSubscribe()`方法后返回的是一个匿名方法，接受一个react 组件为参数，返回包装后的Jayce 组件。调用示例：
 
@@ -210,7 +210,7 @@ The Jayce packaging component process:
 4. Add components that need to be packaged as subcomponents
 5. Return to this new component
 
-### 订阅器
+### 订阅器 Subscriber
 
 为了实现服务端能够准确、主动的推送实时性数据，所以服务端需要维护一个用户的store订阅器。订阅器保存的是客户端的redux事件与用户的对用关系，数据结构为一个JavaScript对象，属性名为事件名称，值为订阅该事件的用户连接对象数组，框架内置的/subsribe和/unsubscribe路由及相关控制器实现了对订阅器的自动管理，对开发者而言无需关心订阅器内容，只需根据业务订阅和发布事件，对应的用户都能够自动获取到数据和触发redux事件。
 
@@ -222,7 +222,7 @@ Message Parser是服务端和客户端可靠通信的枢纽，WebSocket只是建
 
 Message Parser is the hub of reliable communication between server and client. WebSocket is only a channel for establishing full-duplex communication between server and client. Therefore, we need a convenient and expandable message parsing function to enable these text messages to It is correctly identified and processed by the framework. Through the message protocol agreed above, on the server, Message Parser will register system-level and user-level middleware when the service is started. When receiving the message, Message Parser will construct the request object in json format according to the message content, and then submit a message. Each 'request' type of middleware is processed and finally reaches the route processor. When the server returns a message to the client, the returned message object will still be processed by the 'response' middleware in the message handler, and finally processed into a match message. The text content specified in the agreement is sent to the client by WebSocket.
 
-### middleware
+### Middleware
 
 中间件是框架的一个重要组成部分。每一个消息都会流经每一个中间件，这样创建合理的中间件能够完成各种业务需求，例如身份认证、统计分析、消息拦截等。一个中间就是一个方法，接受两个参数，第一个请求对象，第二个是执行下一个中间件的方法，当中间件被注册到框架后，该中间件方法接受到的分别是上一个中间件处理完后的请求对象和调用下一个中间件的方法。如下是框架内置的构建请求对象的中间件示例，它是请求阶段第一个中间件。
 
@@ -258,7 +258,7 @@ The middleware converts the received message character into an object string acc
 
 In practical use, there are mainly three interaction modes between the server and the client. They are the message returned immediately after sending by the client, the message sent by the client to subscribe to the redux and unsubscribing event, and the message sent by the server to execute the redux event.
 
-##### 立即请求返回流程
+##### 立即消息 Immediate message
 
 一个web应用中会有大部分操作是立即返回操作，需要马上得到结果，例如提交表单、打开文章详情页面等。这种消息需要保证请求与返回一一对应，即每一次客户端发送消息都会有服务端唯一应答，跟HTTP请求的特点一样。为了实现这一特性，客户端每次发出消息都会在请求对象头部添加唯一标识，并将其添加到请求等待队列，服务端处理请求后返回携带这个标识的消息对象，客户端得到返回后会去请求对待队列中查找并执行相关回调方法。流程简化后如图所示。
 
@@ -266,7 +266,7 @@ Most of the operations in a web application are immediate return operations, ie,
 
 ![e](../images/immediately.png)
 
-##### 自动订阅流程
+##### 自动订阅 Automatic subscription
 
 自动订阅消息是组件自动完成的，组件会在相关的生命周期方法里发送消息通知服务端订阅和取消订阅redux事件，然后服务端在订阅器中更新该用户对redux事件的订阅关系。
 
@@ -274,19 +274,26 @@ The automatic subscription message is automatically completed by the component. 
 
 ![e](../images/subscribe.png)
 
-订阅流程本质上跟立即请求消息相同，只是对应的服务端的路由控制器一般不需要返回消息，直接去更新服务器订阅器。
+订阅流程的实现跟立即消息原理相似，框架封装了发送订阅相关的方法和路由控制器，订阅相关的路由控制器接收到订阅请求后不需要返回消息，直接去更新订阅器。用户也可以重写订阅相关的路由控制器，或者添加额外的订阅器路由实现更灵活的功能。
 
-##### 服务端主动推送流程
+The implementation of the subscription process is similar to the principle of the immediate message. The framework encapsulates the method of sending subscriptions and the routing controller. The subscription-related routing controller does not need to return a message after receiving the subscription request and directly updates the subscriber. Users can also override the subscription-related routing controllers or add additional subscriber routes for more flexible functionality.
+
+##### 服务端推送 Server push
 
 触发服务端主动推送操作可以来自多种行为，例如其他用户提交数据操作、服务端定时任务等。其流程如图所示。
+
+Triggering the server's active push operation can come from a variety of behaviors, such as other users submitting data operations, server-side timing tasks, and so on. The process is shown in the figure.
 
 ![e](../images/server-push.png)
 
 只要能获取到框架实例对象，就可以随时在需要的逻辑中调用该实例触发广播、多播、单播操作。
+As long as you can get the framework instance object, you can call the instance at any time in the required logic to trigger broadcast, multicast, and unicast operations.
 
 ## Experimental results 【待测试】
 
-相对于HTTP模式的web应用，我们框架的主要优势在实现客户端和服务端的全双工通讯和更小的数据传输量上。因此我们通过三个实验对比HTTP服务器和我们框架服务器的性能。以下实验的服务器配置都是1核心处理器、2G运行内存，网络环境为公网。
+相对于HTTP模式的web应用，我们框架的主要优势在实现了客户端和服务端的全双工通讯和更小的数据传输量上。因此我们通过三个实验对比HTTP服务器和我们框架服务器的性能。以下实验的服务器配置都是1核心处理器、2G运行内存，网络环境为公共网络。
+
+Compared to HTTP mode web applications, the main advantage of our framework is to achieve full-duplex communication and smaller data transfer between the client and server. So we compare the performance of the HTTP server and our framework server through three experiments. The server configuration of the following experiment is one core processor, 2G of running memory, and the network environment is a public network.
 
 ### 实现全双工通讯功能服务器所需要的资源对比
 
@@ -296,6 +303,10 @@ The automatic subscription message is automatically completed by the component. 
 
 ## Conclusions
 
-这篇文章介绍了一个基于WebSocket的单页应用开发框架，在实时性要求越来越高和单页应用成为主流开发方式的环境下，我们框架为开发者提供了一个满足这两种需求的解决方案和实现，能够让开发者快速高效的开发出实时单页web应用，大大提高产品使用体验，而且对于HTTP这种数据获取方式，我们框架也同样支持，从而满足多种功能需求。实验证明，我们框架能有效降低带宽、服务器等资源消耗，从而降低运维成本。为了适应快速的技术的变化，我们框架尽可能降低各模块的耦合度，在客户端用户可以重构组件包装器就可以配合不同的视图层框架使用，例如vue和angular等，在服务端也可以将订阅器用redis等数据库实现。
+这篇文章介绍了一个基于WebSocket的单页应用开发框架，在实时性要求越来越高和单页应用成为主流开发方式的环境下，我们框架为开发者提供了一个满足这两种需求的解决方案和实现，能够让开发者快速高效的开发出实时单页web应用，大大提高用户使用体验，而且对于HTTP这种数据获取方式，我们框架也同样支持，从而满足多种功能需求。实验证明，我们框架能有效降低带宽、服务器等资源消耗，从而降低运维成本。为了适应快速的技术的变化，我们框架尽可能降低各模块的耦合度，例如开发者可以重写组件包装器来搭配各种视图框架，也可以将订阅器用redis数据库替代。
 
-我们框架用websocket替代了HTTP协议的web应用通讯方式，虽然底层变化较大，但是对开发者而言跟传统web应用开发模式变化不大，保持路由、控制器、请求、返回、连接池等相关概念和功能，学习简单但是功能强大。
+This article introduces a single-page application development framework based on WebSocket. In an environment where real-time requirements are becoming higher and higher and single-page applications have become mainstream development methods, our framework provides developers with a solution that satisfies both requirements. The solution and implementation can enable developers to quickly and efficiently develop real-time single-page web applications, greatly improving the user experience, and for the HTTP data acquisition method, our framework also supports it to meet a variety of functional requirements. Experiments have proved that our framework can effectively reduce the bandwidth, server and other resource consumption, thereby reducing the operation and maintenance costs. In order to adapt to rapid technological changes, our framework minimizes the coupling of modules. For example, developers can rewrite component wrappers to match various view frameworks, and can also replace subscribers with redis database.
+
+我们框架用websocket替代了绝大部分HTTP请求，虽然底层变化较大，但是对开发者而言跟传统web应用开发模式变化不大，我们框架保持了路由、控制器、请求、返回、连接池等相关概念和功能，学习简单但是功能强大。
+
+Our framework replaces most of the HTTP requests with websockets. Although the underlying changes are relatively large, there is little change for developers from traditional web application development models. Our framework maintains routes, controllers, requests, returns, connection pools, etc. Related concepts and functions, learning is simple but powerful.
