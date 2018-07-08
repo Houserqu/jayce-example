@@ -1,4 +1,10 @@
-# 基于websocket的实时单页应用开发框架
+# 基于Websocket的实时单页应用开发框架
+
+## Abstract
+
+基于B/S架构的软件是现在常用的软件模式，这种模式下客户端和服务端通过HTTP协议进行数据传递。然而在要求数据实时的场景下，即客户端需要被动接受数据的时候，HTTP协议就不太实用，因为HTTP请求只能由客户端主动发起，然后服务端逐个响应。为了解决这个问题，Websocket协议诞生了，其主要特点是在客户端和服务端建立了一个持久的链接，让他们能够进行全双工通讯。该协议能够有效解决目前所面临的问题，但是目前的web系统更多的是将Websocket单独应用在需要传递实时数据的地方，很多时候Websocket所建立的持久链接并没有得到充分的利用。其实Websocket也能够实现HTTP协议的大部分功能，只是需要增加额外的难度和工作量，而且目前也缺少成熟的解决方案和库。所以我打算开发出一个基于Websocket的web应用开发框架，充分利用websocket的特点和优势，同时结合现在流行的单页应用开发模式，让开发者基于我们框架快速开发出高效的、可靠的web应用。
+
+The software based on the B/S architecture is a commonly used software mode. In this mode, the client and the server exchange data through the HTTP protocol. However, in the scenario where data is required in real time, that is, when the client needs to passively accept data, the HTTP protocol is not practical, because the HTTP request can only be initiated by the client, and then the server responds one by one. In order to solve this problem, the Websocket protocol was born. Its main feature is to establish a persistent link between the client and the server, enabling them to perform full-duplex communication. The protocol can effectively solve the problems currently faced, but the current web system is more to use Websocket in the place where real-time data needs to be transmitted. In many cases, the persistent link established by Websocket is not fully utilized. In fact, Websocket can also implement most of the functions of the HTTP protocol, but it requires additional difficulty and workload, and currently lacks mature solutions and libraries. So I plan to develop a Websocket-based web application development framework that takes full advantage of the features and benefits of websocket, and combines the popular single-page application development model to allow developers to quickly develop efficient and reliable web applications based on our framework.
 
 ## Introduction
 
@@ -60,21 +66,17 @@ A multi-page application divides a web application into multiple html pages acco
 
 ### Contributions
 
-我所我打算实现一个基于websocket通讯的单页应用Web开发框架，方便开发者简单高效的开发出高性能的、实时的web应用[3]。我们框架的主要特点有：
+我所我打算实现一个基于websocket通讯的单页应用Web开发框架，方便开发者简单高效的开发出高性能的、实时的web应用[3]。我们框架主要特点有：
 
-1.	快速上手：不会引入太多复杂的概念，便于开发者快速从HTTP开发模式中过渡到新框架。
-2.	简单：降低websocket的开发复杂度。
-3.	双向通讯：前后端可以方便主动推送数据，而不需要关心websocket的工作原理。
-4.	高效：数据交互速度更快，更加节约资源
-5.	低耦合：能够方便的开发出适合更多场景的web应用，甚至是app应用。
+1. 我们框架实现了服务端和客户端的全双工通讯，服务端能够方便的发起广播、多播和单播操作，而且用更加高效的方式实现了HTTP协议的请求方式。这些通讯方式能够实现各种情况下的数据传递，从而让我们框架能够满足应用的多种功能需求。
+2. 在客户端和服务端频繁的数据交互的情况下，我们框架能够显著降低硬件资源和网络资源的开销，因为它只会在需要的时候传递需要的信息，不会产生冗余的请求和数据。
+3. 我们框架能够配合多种单页应用框架，简化了数据实时更新操作，实现了应用界面的自动的、准确的更新，不仅能够提高用户的使用体验，还能提高应用的稳定性和减少开发时间。
 
 In my opinion, I intend to implement a single-page application web development framework based on websocket communication, so that developers can easily and efficiently develop high-performance, real-time web applications. The main features of our framework are:
 
-1. Get started quickly: There aren't too many complex concepts introduced, making it easy for developers to quickly transition from the HTTP development model to the new framework.
-2. Simple: Reduce websocket development complexity.
-3. Two-way communication: Front-end and back-end can facilitate the initiative to push data, without having to care about the working principle of websocket.
-4. Efficient: faster data exchange, more resource-efficient
-5. Low coupling: It is easy to develop web applications that are suitable for more scenarios, even app applications.
+1. Our framework implements full-duplex communication between the server and the client. The server can easily initiate broadcast, multicast and unicast operations, and implements the HTTP protocol request method in a more efficient manner. These communication methods enable data transfer in a variety of situations, allowing our framework to meet the multiple functional requirements of the application.
+2. In the case of frequent data interaction between the client and the server, our framework can significantly reduce the overhead of hardware resources and network resources, because it will only pass the required information when needed, without generating redundant requests and data.
+3. Our framework can be combined with a variety of single-page application frameworks to simplify the real-time data update operation and achieve automatic and accurate update of the application interface, which not only improves the user experience, but also improves application stability and reduces development time.
 
 ## Related Work
 
@@ -179,9 +181,9 @@ The client consists of three parts, the view, the state manager, and the WebSock
 
 ### 消息协议 Message Protocol
 
-除了浏览器初次渲染需要的文件通过HTTP请求外，我们让后续的所有的数据交互都通过WebSocket实现，而不同的类型的消息会有不同的处理逻辑，为了保证不同类型的消息能够被正确处理以及系统的可拓展性，我们在WebSocket的消息基础上建立了一个简单的协议。WebSocket传输的数据内容是字符串文本，在进行消息传递前，都需要经过message parser进行解析。发送端封构造json格式的请求对象，然后转换成json字符串交给WebSocket传输，接收端再解析成json对象，由于客户端和服务端都是基于JavaScript开发，所以json能够直接被处理。每个消息对象包含两个属性，header 和 body。body为数据内容，header有两个固有属性url和type，前者是路由标识，告诉服务端用哪个路由处理器处理，后者是请求类型，框架内置三种类型：IMMEDIATELY、SUBSCRIBE、UNSUBSCRIBE，分别是立即型消息、订阅型消息、取消订阅型消息。除此外，应用也可以根据需要添加其他header信息，从而实现更灵活的业务。
+除了浏览器初次渲染需要的文件通过HTTP请求外，我们让后续的所有的数据交互都通过WebSocket实现，而不同的类型的消息会有不同的处理逻辑，为了保证不同类型的消息能够被正确处理以及系统的可拓展性，我们在WebSocket的消息基础上建立了一个简单的协议。WebSocket传输的数据内容是字符串文本，在进行消息传递前，都需要经过message parser进行解析。发送端封构造json格式的请求对象，然后转换成json字符串交给WebSocket传输，接收端再解析成json对象，由于客户端和服务端都是基于JavaScript开发，所以json能够直接被处理。每个消息对象包含两个属性，header 和 body。body为数据内容，header有两个固有属性url和type，前者是路由标识，告诉服务端用哪个路由处理器处理，后者是请求类型，框架内置三种类型：立即型消息、订阅型消息、取消订阅型消息。除此外，应用也可以根据需要添加其他header信息。
 
-In addition to the files required for the initial rendering of the browser through the HTTP request, we allow all subsequent data interactions to be implemented through WebSocket, and different types of messages will have different processing logic, in order to ensure that different types of messages can be processed correctly and With the scalability of the system, we have established a simple protocol based on the WebSocket message. WebSocket transmission of data content is a string of text, in the message before passing, need to be parsed by the message parser. The sender constructs the request object in json format, and then converts it into a json string for transmission to the WebSocket. The receiver then parses it into a json object. Since both the client and the server are based on JavaScript, json can be processed directly. Each message object contains two attributes, header and body. The body is the data content. The header has two intrinsic properties: url and type. The former is the route identifier, which tells the server which route processor to use for processing. The latter is the request type. The frame has three built-in types: IMMEDIATELY, SUBSCRIBE, and UNSUBSCRIBE. Immediate messages, subscription messages, and unsubscribe messages. In addition, applications can also add other header information as needed to achieve more flexible services.
+In addition to the files required for the initial rendering of the browser through the HTTP request, we allow all subsequent data interactions to be implemented through WebSocket, and different types of messages will have different processing logic, in order to ensure that different types of messages can be processed correctly and With the scalability of the system, we have established a simple protocol based on the WebSocket message. WebSocket transmission of data content is a string of text, in the message before passing, need to be parsed by the message parser. The sender constructs the request object in json format, and then converts it into a json string for transmission to the WebSocket. The receiver then parses it into a json object. Since both the client and the server are based on JavaScript, json can be processed directly. Each message object contains two attributes, header and body. The body is the data content. The header has two intrinsic properties: url and type. The former is the route identifier, which tells the server which route processor to use for processing. The latter is the request type. The frame has three built-in type messages:  Immediate messages, subscription messages, and unsubscribe messages. In addition, applications can also add other header information as needed.
 
 ### 自动订阅组件 Automatic Subscription Component
 
@@ -318,6 +320,8 @@ Then we compare the concurrent capabilities of the two modes. We simulated the n
 每个用户只发起一个请求时，HTTP比websocket的响应速度快一倍，由于websocet建立后并不会马上释放，服务端需要消耗资源去维护这些链接。但是随着每个用户的请求数的增加，websocket的优势就体现出来了，频繁的请求让websocket能够充分利用建立起来的链接，以最小的开销去传递数据。当每个用户的请求数达到500时，两者的服务器资源已经被彻底消耗，所以请求处理数量无法进一步提升。
 
 When each user only initiates one request, HTTP responds twice as fast as websocket. Since websocet is not released immediately after it is established, the server needs to consume resources to maintain these links. However, as the number of requests from each user increases, the advantages of websocket are reflected. Frequent requests allow websocket to make full use of the established links and transfer data with minimal overhead. When the number of requests per user reaches 500, the server resources of both are completely consumed, so the number of request processing cannot be further improved.
+
+
 
 ## Conclusions
 

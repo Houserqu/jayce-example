@@ -1,5 +1,9 @@
 # Real-time single-page application development framework based on web sockets
 
+## Abstract
+
+The software based on the B/S architecture is a commonly used software mode. In this mode, the client and the server exchange data through the HTTP protocol. However, in the scenario where data is required in real time, that is, when the client needs to passively accept data, the HTTP protocol is not practical, because the HTTP request can only be initiated by the client, and then the server responds one by one. In order to solve this problem, the Websocket protocol was born. Its main feature is to establish a persistent link between the client and the server, enabling them to perform full-duplex communication. The protocol can effectively solve the problems currently faced, but the current web system is more to use Websocket in the place where real-time data needs to be transmitted. In many cases, the persistent link established by Websocket is not fully utilized. In fact, Websocket can also implement most of the functions of the HTTP protocol, but it requires additional difficulty and workload, and currently lacks mature solutions and libraries. So I plan to develop a Websocket-based web application development framework that takes full advantage of the features and benefits of websocket, and combines the popular single-page application development model to allow developers to quickly develop efficient and reliable web applications based on our framework.
+
 ## Introduction
 
 ### Background
@@ -42,11 +46,9 @@ A multi-page application divides a web application into multiple html pages acco
 
 In my opinion, I intend to implement a single-page application web development framework based on websocket communication, so that developers can easily and efficiently develop high-performance, real-time web applications[3]. The main features of our framework are:
 
-1. Get started quickly: There aren't too many complex concepts introduced, making it easy for developers to quickly transition from the HTTP development model to the new framework.
-2. Simple: Reduce websocket development complexity.
-3. Two-way communication: Front-end and back-end can facilitate the initiative to push data, without having to care about the working principle of websocket.
-4. Efficient: faster data exchange, more resource-efficient
-5. Low coupling: It is easy to develop web applications that are suitable for more scenarios, even app applications.
+1. Our framework implements full-duplex communication between the server and the client. The server can easily initiate broadcast, multicast and unicast operations, and implements the HTTP protocol request method in a more efficient manner. These communication methods enable data transfer in a variety of situations, allowing our framework to meet the multiple functional requirements of the application.
+2. In the case of frequent data interaction between the client and the server, our framework can significantly reduce the overhead of hardware resources and network resources, because it will only pass the required information when needed, without generating redundant requests and data.
+3. Our framework can be combined with a variety of single-page application frameworks to simplify the real-time data update operation and achieve automatic and accurate update of the application interface, which not only improves the user experience, but also improves application stability and reduces development time.
 
 ## Related Work
 
@@ -123,7 +125,7 @@ The client consists of three parts, the view, the state manager, and the WebSock
 
 ### Message Protocol
 
-In addition to the files required for the initial rendering of the browser through the HTTP request, we allow all subsequent data interactions to be implemented through WebSocket, and different types of messages will have different processing logic, in order to ensure that different types of messages can be processed correctly and With the scalability of the system, we have established a simple protocol based on the WebSocket message. WebSocket transmission of data content is a string of text, in the message before passing, need to be parsed by the message parser. The sender constructs the request object in json format, and then converts it into a json string for transmission to the WebSocket. The receiver then parses it into a json object. Since both the client and the server are based on JavaScript, json can be processed directly. Each message object contains two attributes, header and body. The body is the data content. The header has two intrinsic properties: url and type. The former is the route identifier, which tells the server which route processor to use for processing. The latter is the request type. The frame has three built-in types: IMMEDIATELY, SUBSCRIBE, and UNSUBSCRIBE. Immediate messages, subscription messages, and unsubscribe messages. In addition, applications can also add other header information as needed to achieve more flexible services.
+In addition to the files required for the initial rendering of the browser through the HTTP request, we allow all subsequent data interactions to be implemented through WebSocket, and different types of messages will have different processing logic, in order to ensure that different types of messages can be processed correctly and With the scalability of the system, we have established a simple protocol based on the WebSocket message. WebSocket transmission of data content is a string of text, in the message before passing, need to be parsed by the message parser. The sender constructs the request object in json format, and then converts it into a json string for transmission to the WebSocket. The receiver then parses it into a json object. Since both the client and the server are based on JavaScript, json can be processed directly. Each message object contains two attributes, header and body. The body is the data content. The header has two intrinsic properties: url and type. The former is the route identifier, which tells the server which route processor to use for processing. The latter is the request type. The frame has three built-in type messages:  Immediate messages, subscription messages, and unsubscribe messages. In addition, applications can also add other header information as needed.
 
 ### Automatic Subscription Component
 
